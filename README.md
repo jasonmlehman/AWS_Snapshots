@@ -3,3 +3,5 @@ Creates EBS snapshots of volumes that are tagged.  Simply add the following tags
 
 1) backup:  daily, weekly, monthly
 2) retention: number of days to retain
+
+# Create lambda job to run on a schedule
