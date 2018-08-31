@@ -5,3 +5,4 @@ Creates EBS snapshots of volumes that are tagged.  Simply add the following tags
 2) retention: number of days to retain
 
 # Create lambda job to run on a schedule
+I won't get into the specifics of this.  Just create a new lambad job that runs at a scheduled time.  This python script handles the rest.
