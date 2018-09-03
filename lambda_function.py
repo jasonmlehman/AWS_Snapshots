@@ -71,25 +71,25 @@ def lambda_handler(event, context):
                 VolumeId=vol_id,
             )
 
-			newSnapTags = []
+            newSnapTags = []
             name = None
 
-			#Add tags from orginial volume and remove any problematic 'aws:*' tags
+            #Add tags from orginial volume and remove any problematic 'aws:*' tags
             for tag in vol.tags:
                 if tag['Key'] == 'Name':
                     name = tag.get('Value')
-				if ('aws:' not in tag['Key']):
+                if ('aws:' not in tag['Key']):
                     newSnapTags.append(tag)
 
-			#append house-keeping tags
-			newSnapTags.append({{'Key': 'parentinstance', 'Value': instance['InstanceId']}})
-			newSnapTags.append({'Key': 'Name', 'Value': name})
-			newSnapTags.append({'Key': 'mountpoint', 'Value': dev['DeviceName']})
+            #append house-keeping tags
+            newSnapTags.append({{'Key': 'parentinstance', 'Value': instance['InstanceId']}})
+            newSnapTags.append({'Key': 'Name', 'Value': name})
+            newSnapTags.append({'Key': 'mountpoint', 'Value': dev['DeviceName']})
 
             ec.create_tags(
                 Resources=[snap['SnapshotId']],
                 Tags=newSnapTags
-			)
+            )
 
             to_tag[retention_days].append(snap['SnapshotId'])
 
