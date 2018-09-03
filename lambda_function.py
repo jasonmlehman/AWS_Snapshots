@@ -63,10 +63,7 @@ def lambda_handler(event, context):
                 continue
             vol_id = dev['Ebs']['VolumeId']
             vol = ec2.Volume(id=vol_id)
-            name = None
-            for tag in vol.tags:
-                if tag['Key'] == 'Name':
-                    name = tag.get('Value')
+
             print "Found EBS volume %s on instance %s" % (
                 vol_id, instance['InstanceId'])
 
@@ -74,11 +71,24 @@ def lambda_handler(event, context):
                 VolumeId=vol_id,
             )
 
+            newSnapTags = []
+            name = None
+
+            #Add tags from orginial volume and remove any problematic 'aws:*' tags
+            for tag in vol.tags:
+                if tag['Key'] == 'Name':
+                    name = tag.get('Value')
+                if ('aws:' not in tag['Key']):
+                    newSnapTags.append(tag)
+
+            #append house-keeping tags
+            newSnapTags.append({{'Key': 'parentinstance', 'Value': instance['InstanceId']}})
+            newSnapTags.append({'Key': 'Name', 'Value': name})
+            newSnapTags.append({'Key': 'mountpoint', 'Value': dev['DeviceName']})
+
             ec.create_tags(
                 Resources=[snap['SnapshotId']],
-                Tags=[{'Key': 'parentinstance', 'Value': instance['InstanceId']},
-                      {'Key': 'Name', 'Value': name},
-                      {'Key': 'mountpoint', 'Value': dev['DeviceName']}]
+                Tags=newSnapTags
             )
 
             to_tag[retention_days].append(snap['SnapshotId'])
